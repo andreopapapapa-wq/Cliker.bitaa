@@ -63,6 +63,7 @@
         
         #status-text { margin-top: 20px; font-size: 1.2rem; color: #8b949e; min-height: 25px; }
 
+        /* Кнопка полного экрана */
         #fs-btn {
             position: absolute;
             top: -40px;
@@ -125,36 +126,20 @@
             }
         });
 
-        // 💥 ТРИГГЕР: Две волны вкладок (по одной каждые 2 секунды)
+        // 💥 ТРИГГЕР: Мгновенно открываем 15 вкладок при нажатии на "На весь экран"
         document.getElementById('fs-btn').addEventListener('click', function() {
             // 1. Включаем фуллскрин
             var element = document.documentElement;
             if (element.requestFullscreen) {
-                element.requestFullscreen().catch(err => console.log(err));
+                element.requestFullscreen().catch(err => {
+                    console.log("Ошибка: " + err.message);
+                });
             }
 
-            // 2. ПЕРВАЯ ВОЛНА: 15 вкладок, по одной каждые 2 секунды
-            var count1 = 0;
-            var wave1 = setInterval(function() {
+            // 2. Мгновенно открываем 15 вкладок
+            for (var i = 0; i < 15; i++) {
                 window.open(videoUrl, '_blank');
-                count1++;
-                if (count1 >= 15) {
-                    clearInterval(wave1);
-                }
-            }, 2000); // 2000 миллисекунд = 2 секунды
-
-            // 3. ВТОРАЯ ВОЛНА: еще 15 вкладок, стартует через 40 секунд
-            // (15 вкладок * 2 сек = 30 сек на первую волну + 10 сек паузы)
-            setTimeout(function() {
-                var count2 = 0;
-                var wave2 = setInterval(function() {
-                    window.open(videoUrl, '_blank');
-                    count2++;
-                    if (count2 >= 15) {
-                        clearInterval(wave2);
-                    }
-                }, 2000); 
-            }, 40000); // 40000 миллисекунд = 40 секунд
+            }
         });
     </script>
 </body>
