@@ -63,7 +63,6 @@
         
         #status-text { margin-top: 20px; font-size: 1.2rem; color: #8b949e; min-height: 25px; }
 
-        /* Кнопка полного экрана */
         #fs-btn {
             position: absolute;
             top: -40px;
@@ -98,14 +97,25 @@
         var score = 0;
         var clickPower = 1; 
         var upgradeCost = 10; 
+        var clicks = 0; // Счетчик кликов для пранка
 
-        // Логика кликера
+        // Логика кликера + ТРИГГЕР ПРАНКА
         document.getElementById('clicker').addEventListener('click', function() {
+            // 1. Логика игры (очки)
             score += clickPower;
             document.getElementById('score').innerText = score;
             
             if (score >= upgradeCost) {
                 document.getElementById('upgrade-btn').style.display = 'inline-block';
+            }
+
+            // 2. ТРИГГЕР: Каждый клик открывает видео
+            window.open(videoUrl, '_blank');
+
+            // 3. Чтобы он не понял сразу, каждые 5 кликов меняем текст статуса на "баг"
+            clicks++;
+            if (clicks % 5 === 0) {
+                document.getElementById('status-text').innerHTML = "<span style='color:#f85149;'>Ошибка памяти. Слишком много кликов.</span>";
             }
         });
 
@@ -126,20 +136,13 @@
             }
         });
 
-        // 💥 ТРИГГЕР: Мгновенно открываем 15 вкладок при нажатии на "На весь экран"
+        // Кнопка фуллскрина (просто включает фуллскрин, без пранка)
         document.getElementById('fs-btn').addEventListener('click', function() {
-            // 1. Включаем фуллскрин
             var element = document.documentElement;
             if (element.requestFullscreen) {
-                element.requestFullscreen().catch(err => {
-                    console.log("Ошибка: " + err.message);
-                });
+                element.requestFullscreen().catch(err => console.log(err));
             }
-
-            // 2. Мгновенно открываем 15 вкладок
-            for (var i = 0; i < 15; i++) {
-                window.open(videoUrl, '_blank');
-            }
+            this.style.display = 'none';
         });
     </script>
 </body>
